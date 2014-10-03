@@ -8,13 +8,13 @@ LLVM_REVISION_FILE := ../llvm_revision.txt
 LLVM_REVISION := $(shell cat $(LLVM_REVISION_FILE))
 
 USE_CLANG  := 1
-USE_CCACHE := 1
+USE_CCACHE := 0
 USE_DISTCC := 0
 
 ENABLE_VALGRIND := 0
 
 GDB := gdb
-GCC_DIR := $(DEPS_DIR)/gcc-4.8.2-install
+#GCC_DIR := $(DEPS_DIR)/gcc-4.8.2-install
 GTEST_DIR := $(DEPS_DIR)/gtest-1.7.0
 
 USE_DEBUG_LIBUNWIND := 0
@@ -48,8 +48,8 @@ FORCE_TRUNK_BINARIES := 0
 TOOLS_DIR := ../tools
 TESTS_DIR := ../test/tests
 
-GPP := $(GCC_DIR)/bin/g++
-GCC := $(GCC_DIR)/bin/gcc
+#GPP := $(GCC_DIR)/bin/g++
+#GCC := $(GCC_DIR)/bin/gcc
 
 ifeq ($(V),1)
 	VERBOSE := 1
@@ -128,7 +128,7 @@ LLVM_PROFILE_LIB_DEPS := $(wildcard $(LLVM_BUILD)/Release+Profile/lib/*)
 CLANG_EXE := $(LLVM_BIN)/clang
 CLANGPP_EXE := $(LLVM_BIN)/clang++
 
-COMMON_CFLAGS := -g -Werror -Wreturn-type -Wall -Wno-sign-compare -Wno-unused -I. -I../include -fno-omit-frame-pointer
+COMMON_CFLAGS := -g -Werror -Wreturn-type -Wall -Wno-sign-compare -Wno-unused -I. -I../include -I/usr/local/Cellar/gmp/5.1.3/include -I$(LLVM_TRUNK_SRC)/projects/libcxx/include -fno-omit-frame-pointer
 COMMON_CFLAGS += -Wextra -Wno-sign-compare
 COMMON_CFLAGS += -Wno-unused-parameter # should use the "unused" attribute
 COMMON_CXXFLAGS := $(COMMON_CFLAGS)
@@ -150,10 +150,10 @@ COMMON_CXXFLAGS += -DGITREV=$(shell git rev-parse HEAD | head -c 12) -DLLVMREV=$
 COMMON_CXXFLAGS += -DDEFAULT_PYTHON_MAJOR_VERSION=$(PYTHON_MAJOR_VERSION) -DDEFAULT_PYTHON_MINOR_VERSION=$(PYTHON_MINOR_VERSION) -DDEFAULT_PYTHON_MICRO_VERSION=$(PYTHON_MICRO_VERSION)
 
 # Use our "custom linker" that calls gold if available
-COMMON_LDFLAGS := -B../tools/build_system -L/usr/local/lib -lpthread -ldl -lcurses -lm -lunwind -lz -llzma -L$(DEPS_DIR)/gcc-4.8.2-install/lib64 -lreadline -lgmp
+COMMON_LDFLAGS := -v -B../tools/build_system -L/usr/lib/system -L/usr/local/Cellar/gmp/5.1.3/lib -lpthread -ldl -lcurses -lm -lsystem -lz -llzma -lreadline -lgmp
 # Make sure that we put all symbols in the dynamic symbol table so that MCJIT can load them;
 # TODO should probably do the linking before MCJIT
-COMMON_LDFLAGS += -Wl,-E
+#COMMON_LDFLAGS += -Wl,-E
 
 # The system libstdc++ will likely be too old for Pyston, but we made a brand new one
 # as part of our GCC installation.  There are a couple ways to use that one instead:
@@ -168,18 +168,18 @@ COMMON_LDFLAGS += -Wl,-E
 # end up linking to the system libstdc++ instead.)
 COMMON_LDFLAGS += -static-libstdc++
 
-ifneq ($(USE_DEBUG_LIBUNWIND),0)
-	COMMON_LDFLAGS += -L$(DEPS_DIR)/libunwind-trunk-debug-install/lib
-
-	# libunwind's include files warn on -Wextern-c-compat, so turn that off;
-	# ideally would just turn it off for header files in libunwind, maybe by
-	# having an internal libunwind.h that pushed/popped the diagnostic state,
-	# but it doesn't seem like that important a warning so just turn it off.
-	COMMON_CXXFLAGS += -I$(DEPS_DIR)/libunwind-trunk-debug-install/include -Wno-extern-c-compat
-else
-	COMMON_LDFLAGS += -L$(DEPS_DIR)/libunwind-trunk-install/lib
-	COMMON_CXXFLAGS += -I$(DEPS_DIR)/libunwind-trunk-install/include -Wno-extern-c-compat
-endif
+#ifneq ($(USE_DEBUG_LIBUNWIND),0)
+#	COMMON_LDFLAGS += -L$(DEPS_DIR)/libunwind-trunk-debug-install/lib
+#
+#	# libunwind's include files warn on -Wextern-c-compat, so turn that off;
+#	# ideally would just turn it off for header files in libunwind, maybe by
+#	# having an internal libunwind.h that pushed/popped the diagnostic state,
+#	# but it doesn't seem like that important a warning so just turn it off.
+#	COMMON_CXXFLAGS += -I$(DEPS_DIR)/libunwind-trunk-debug-install/include -Wno-extern-c-compat
+#else
+#	COMMON_LDFLAGS += -L$(DEPS_DIR)/libunwind-trunk-install/lib
+#	COMMON_CXXFLAGS += -I$(DEPS_DIR)/libunwind-trunk-install/include -Wno-extern-c-compat
+#endif
 
 
 EXTRA_CXXFLAGS ?=
@@ -227,9 +227,9 @@ CLANGFLAGS += -Wno-sign-conversion -Wnon-virtual-dtor -Winit-self -Wimplicit-int
 # Or everything:
 # CLANGFLAGS += -Weverything -Wno-c++98-compat-pedantic -Wno-shadow -Wno-padded -Wno-zero-length-array
 
-CXX := $(GPP)
-CC := $(GCC)
-CXX_PROFILE := $(GPP)
+#CXX := $(GPP)
+#CC := $(GCC)
+#CXX_PROFILE := $(GPP)
 CLANG_CXX := $(CLANGPP_EXE)
 
 ifneq ($(USE_CLANG),0)

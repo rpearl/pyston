@@ -52,7 +52,8 @@ public:
 
 class PthreadFastMutex {
 private:
-    pthread_mutex_t mutex = PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP;
+    //pthread_mutex_t mutex = PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP;
+    pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 public:
     void lock() { pthread_mutex_lock(&mutex); }
@@ -106,13 +107,13 @@ public:
 
 class PthreadSpinLock {
 private:
-    pthread_spinlock_t spinlock;
+    pthread_mutex_t spinlock;
 
 public:
-    PthreadSpinLock() { pthread_spin_init(&spinlock, false); }
+    PthreadSpinLock() { pthread_mutex_init(&spinlock, NULL); }
 
-    void lock() { pthread_spin_lock(&spinlock); }
-    void unlock() { pthread_spin_unlock(&spinlock); }
+    void lock() { pthread_mutex_lock(&spinlock); }
+    void unlock() { pthread_mutex_unlock(&spinlock); }
 
     PthreadSpinLock* asRead() { return this; }
     PthreadSpinLock* asWrite() { return this; }

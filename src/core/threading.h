@@ -15,6 +15,8 @@
 #ifndef PYSTON_CORE_THREADING_H
 #define PYSTON_CORE_THREADING_H
 
+#define _XOPEN_SOURCE
+
 #include <cstdint>
 #include <cstring>
 #include <ucontext.h>

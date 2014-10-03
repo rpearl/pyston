@@ -27,6 +27,7 @@
 #include "Python.h"
 
 #include "core/common.h"
+#include "core/util.h"
 #include "core/stats.h"
 
 namespace llvm {
@@ -472,16 +473,17 @@ public:
     void freeze();
 };
 
-static_assert(sizeof(pyston::Box) == sizeof(struct _object), "");
-static_assert(offsetof(pyston::Box, cls) == offsetof(struct _object, ob_type), "");
-
-static_assert(offsetof(pyston::BoxedClass, cls) == offsetof(struct _typeobject, ob_type), "");
-static_assert(offsetof(pyston::BoxedClass, tp_name) == offsetof(struct _typeobject, tp_name), "");
-static_assert(offsetof(pyston::BoxedClass, attrs) == offsetof(struct _typeobject, _hcls), "");
-static_assert(offsetof(pyston::BoxedClass, dependent_icgetattrs) == offsetof(struct _typeobject, _dep_getattrs), "");
-static_assert(offsetof(pyston::BoxedClass, base) == offsetof(struct _typeobject, _base), "");
-static_assert(offsetof(pyston::BoxedClass, gc_visit) == offsetof(struct _typeobject, _gcvisit_func), "");
-static_assert(sizeof(pyston::BoxedClass) == sizeof(struct _typeobject), "");
+//void do_static_asserts() {
+//	check_size<sizeof(pyston::Box), sizeof(struct _object)>();
+//	check_size<offsetof(pyston::Box, cls), offsetof(struct _object, ob_type)>();
+//	check_size<offsetof(pyston::BoxedClass, cls), offsetof(struct _typeobject, ob_type)>();
+//	check_size<offsetof(pyston::BoxedClass, tp_name), offsetof(struct _typeobject, tp_name)>();
+//	check_size<offsetof(pyston::BoxedClass, attrs), offsetof(struct _typeobject, _hcls)>();
+//	check_size<offsetof(pyston::BoxedClass, dependent_icgetattrs), offsetof(struct _typeobject, _dep_getattrs)>();
+//	check_size<offsetof(pyston::BoxedClass, base), offsetof(struct _typeobject, _base)>();
+//	check_size<offsetof(pyston::BoxedClass, gc_visit), offsetof(struct _typeobject, _gcvisit_func)>();
+//	check_size<sizeof(pyston::BoxedClass), sizeof(struct _typeobject)>();
+//}
 
 // TODO these shouldn't be here
 void setupRuntime();

@@ -15,6 +15,8 @@
 #ifndef PYSTON_RUNTIME_TYPES_H
 #define PYSTON_RUNTIME_TYPES_H
 
+#define _XOPEN_SOURCE
+
 #include <ucontext.h>
 
 #include "Python.h"
@@ -23,6 +25,7 @@
 #include "codegen/irgen/future.h"
 #include "core/threading.h"
 #include "core/types.h"
+#include "core/util.h"
 #include "gc/gc_alloc.h"
 
 namespace pyston {
@@ -232,7 +235,10 @@ public:
     BoxedString(const std::string&& s) __attribute__((visibility("default"))) : Box(str_cls), s(std::move(s)) {}
     BoxedString(const std::string& s) __attribute__((visibility("default"))) : Box(str_cls), s(s) {}
 };
-static_assert(sizeof(BoxedString) == sizeof(PyStringObject), "");
+
+//void check_boxedsize() {
+//	check_size<sizeof(BoxedString), sizeof(PyStringObject)>();
+//}
 
 class BoxedUnicode : public Box {
     // TODO implementation
@@ -309,7 +315,7 @@ struct PyLt {
 
 class BoxedDict : public Box {
 public:
-    typedef std::unordered_map<Box*, Box*, PyHasher, PyEq, StlCompatAllocator<std::pair<Box*, Box*> > > DictMap;
+    typedef std::unordered_map<Box*, Box*, PyHasher, PyEq, StlCompatAllocator<std::unordered_map<Box *, Box*>::value_type> > DictMap;
 
     DictMap d;
 

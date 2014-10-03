@@ -54,7 +54,7 @@ typedef struct {
 // Pyston change: substitute this filler object that has the right size:
 typedef struct {
     PyObject_HEAD; // not a VAR_HEAD for now
-    char _filler[8];
+    char _filler[24];
 } PyStringObject;
 
 #define SSTATE_NOT_INTERNED 0
