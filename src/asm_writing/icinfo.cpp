@@ -178,7 +178,7 @@ ICSlotInfo* ICInfo::pickEntryForRewrite(uint64_t decision_path, const char* debu
         return &sinfo.entry;
     }
     if (VERBOSITY())
-        printf("not committing %s icentry since it is not compatible (%lx)\n", debug_name, decision_path);
+        printf("not committing %s icentry since it is not compatible (%llx)\n", debug_name, decision_path);
     return NULL;
 }
 

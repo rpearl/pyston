@@ -674,8 +674,7 @@ stdlib.release.bc: OPT_OPTIONS=-O3 -strip-debug
 # Then do "ld -b binary" to create a .o file for embedding into the executable
 # $(STDLIB_OBJS) $(STDLIB_RELEASE_OBJS): %.o: % $(BUILD_SYSTEM_DEPS)
 stdli%.bc.o: stdli%.bc $(BUILD_SYSTEM_DEPS)
-	$(ECHO) Embedding $<
-	$(VERB) ld -r -b binary $< -o $@
+	xxd -i $< | $(CC) -c -o $@ -xc -
 
 # Optionally, disassemble the bitcode files:
 %.ll: %.bc

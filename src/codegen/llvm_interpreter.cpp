@@ -203,7 +203,7 @@ Val fetch(llvm::Value* v, const llvm::DataLayout& dl, const SymMap& symbols) {
 
 static void set(SymMap& symbols, const llvm::BasicBlock::iterator& it, Val v) {
     if (VERBOSITY() >= 2) {
-        printf("Setting to %lx / %f: ", v.n, v.d);
+        printf("Setting to %llx / %f: ", v.n, v.d);
         fflush(stdout);
         it->dump();
     }
@@ -408,7 +408,7 @@ Box* interpretFunction(llvm::Function* f, int nargs, Box* closure, Box* generato
 #define SET(v) set(symbols, inst, (v))
 
             if (llvm::LandingPadInst* lpad = llvm::dyn_cast<llvm::LandingPadInst>(inst)) {
-                SET((intptr_t)&landingpad_value);
+                SET((int64_t)&landingpad_value);
                 continue;
             } else if (llvm::ExtractValueInst* ev = llvm::dyn_cast<llvm::ExtractValueInst>(inst)) {
                 Val r = fetch(ev->getAggregateOperand(), dl, symbols);

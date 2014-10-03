@@ -208,7 +208,7 @@ uint64_t PystonMemoryManager::getSymbolAddress(const std::string& name) {
         return getSymbolAddress(".L" + name);
     }
 
-    printf("getSymbolAddress(%s); %lx\n", name.c_str(), base);
+    printf("getSymbolAddress(%s); %llx\n", name.c_str(), base);
     return 0;
 }
 
