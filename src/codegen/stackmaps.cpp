@@ -75,7 +75,7 @@ void StackmapJITEventListener::NotifyObjectEmitted(const llvm::ObjectImage& Obj)
             // assert(stackmap_size > 0);
             // assert(!code);
             if (VERBOSITY() >= 2)
-                printf("Found the stackmaps at stackmap_address 0x%lx\n", stackmap_address);
+                printf("Found the stackmaps at stackmap_address 0x%llx\n", stackmap_address);
 
             assert(cur_map == NULL);
             cur_map = new StackMap();
@@ -111,7 +111,7 @@ void StackmapJITEventListener::NotifyObjectEmitted(const llvm::ObjectImage& Obj)
                 const StackMap::StackSizeRecord& size_record = *ptr.size_record++;
                 cur_map->stack_size_records.push_back(size_record);
                 if (VERBOSITY() >= 2)
-                    printf("function %d: offset 0x%lx, stack size 0x%lx\n", i, size_record.offset,
+                    printf("function %d: offset 0x%llx, stack size 0x%llx\n", i, size_record.offset,
                            size_record.stack_size);
             }
 
@@ -121,7 +121,7 @@ void StackmapJITEventListener::NotifyObjectEmitted(const llvm::ObjectImage& Obj)
             for (int i = 0; i < nconstants; i++) {
                 uint64_t constant = *ptr.u64++;
                 if (VERBOSITY() >= 2)
-                    printf("Constant %d: %ld\n", i, constant);
+                    printf("Constant %d: %llu\n", i, constant);
                 cur_map->constants.push_back(constant);
             }
 
@@ -139,7 +139,7 @@ void StackmapJITEventListener::NotifyObjectEmitted(const llvm::ObjectImage& Obj)
                 int numlocations = *ptr.u16++;
 
                 if (VERBOSITY() >= 2)
-                    printf("Stackmap record %ld at 0x%x has %d locations:\n", record->id, record->offset, numlocations);
+                    printf("Stackmap record %llu at 0x%x has %d locations:\n", record->id, record->offset, numlocations);
                 for (int j = 0; j < numlocations; j++) {
                     assert(sizeof(StackMap::Record::Location) == sizeof(*ptr.u64));
                     const StackMap::Record::Location& r = *ptr.record_loc++;
@@ -184,7 +184,7 @@ void StackmapJITEventListener::NotifyObjectEmitted(const llvm::ObjectImage& Obj)
             assert(stackmap_size > 0);
             assert(!code);
 
-            ASSERT(ptr.i8 - start_ptr == stackmap_size, "%ld %ld", ptr.i8 - start_ptr, stackmap_size);
+            ASSERT(ptr.i8 - start_ptr == stackmap_size, "%ld %llu", ptr.i8 - start_ptr, stackmap_size);
 #endif
         }
 

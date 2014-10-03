@@ -340,7 +340,7 @@ void* compilePartialFunc(OSRExit* exit) {
 static StatCounter stat_reopt("reopts");
 extern "C" char* reoptCompiledFunc(CompiledFunction* cf) {
     if (VERBOSITY("irgen") >= 1)
-        printf("In reoptCompiledFunc, %p, %ld\n", cf, cf->times_called);
+        printf("In reoptCompiledFunc, %p, %lld\n", cf, cf->times_called);
     stat_reopt.log();
 
     assert(cf->effort < EffortLevel::MAXIMAL);

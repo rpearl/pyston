@@ -132,7 +132,7 @@ public:
 #endif
                 if (VERBOSITY() >= 2) {
                     for (int i = 0; i < lines.size(); i++) {
-                        printf("%s:%d, %s: %lx\n", lines[i].second.FileName.c_str(), lines[i].second.Line,
+                        printf("%s:%d, %s: %llx\n", lines[i].second.FileName.c_str(), lines[i].second.Line,
                                lines[i].second.FunctionName.c_str(), lines[i].first);
                     }
                 }
@@ -150,6 +150,7 @@ public:
         }
 
         // Currently-unused libunwind support:
+         # if 0
         llvm_error_code code;
         bool found_text = false, found_eh_frame = false;
         uint64_t text_addr, text_size;
@@ -169,7 +170,7 @@ public:
                     continue;
 
                 if (VERBOSITY())
-                    printf("eh_frame: %lx %lx\n", eh_frame_addr, eh_frame_size);
+                    printf("eh_frame: %llx %llx\n", eh_frame_addr, eh_frame_size);
                 found_eh_frame = true;
             } else if (name == ".text") {
                 assert(!found_text);
@@ -179,7 +180,7 @@ public:
                     continue;
 
                 if (VERBOSITY())
-                    printf("text: %lx %lx\n", text_addr, text_size);
+                    printf("text: %llx %llx\n", text_addr, text_size);
                 found_text = true;
             }
         }
@@ -204,6 +205,7 @@ public:
         // as opposed to the binary search it can do within a dyn_info.
         // If we're registering a lot of dyn_info's, it might make sense to coalesce them into a single
         // dyn_info that contains a binary search table.
+#endif
     }
 };
 
@@ -286,7 +288,7 @@ public:
                 this->id.ip = ip;
 
                 unw_word_t bp;
-                unw_get_reg(&this->cursor, UNW_TDEP_BP, &bp);
+                unw_get_reg(&this->cursor, UNW_X86_64_RBP, &bp);
 
                 return true;
             }
@@ -299,7 +301,7 @@ public:
 
             if (pip.start_ip == (intptr_t)interpretFunction) {
                 unw_word_t bp;
-                unw_get_reg(&this->cursor, UNW_TDEP_BP, &bp);
+                unw_get_reg(&this->cursor, UNW_X86_64_RBP, &bp);
 
                 this->id.type = PythonFrameId::INTERPRETED;
                 this->id.bp = bp;
