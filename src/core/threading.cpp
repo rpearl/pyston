@@ -57,6 +57,7 @@ PthreadFastMutex threading_lock;
 // As a minor optimization, this is not a std::atomic since it should only
 // be checked while the threading_lock is held; might not be worth it.
 int num_starting_threads(0);
+PthreadCond starting_threads_cond;
 
 class ThreadStateInternal {
 private:
@@ -133,6 +134,7 @@ void popGenerator() {
 }
 
 static int signals_waiting(0);
+static PthreadCond signals_waiting_cond;
 static std::vector<ThreadState> thread_states;
 
 static void pushThreadState(pthread_t tid, ucontext_t* context) {
@@ -154,15 +156,8 @@ std::vector<ThreadState> getAllThreadStates() {
 
     LOCK_REGION(&threading_lock);
 
-    while (true) {
-        // TODO shouldn't busy-wait:
-        if (num_starting_threads) {
-            threading_lock.unlock();
-            sleep(0);
-            threading_lock.lock();
-        } else {
-            break;
-        }
+    while (num_starting_threads) {
+        starting_threads_cond.wait(&threading_lock);
     }
 
     signals_waiting = (current_threads.size() - 1);
@@ -197,10 +192,7 @@ std::vector<ThreadState> getAllThreadStates() {
 
     // TODO shouldn't busy-wait:
     while (signals_waiting) {
-        threading_lock.unlock();
-        // printf("Waiting for %d threads\n", signals_waiting);
-        sleep(0);
-        threading_lock.lock();
+        signals_waiting_cond.wait(&threading_lock);
     }
 
     assert(num_starting_threads == 0);
@@ -222,6 +214,8 @@ static void _thread_context_dump(int signum, siginfo_t* info, void* _context) {
 
     pushThreadState(tid, context);
     signals_waiting--;
+    if (signals_waiting == 0)
+        signals_waiting_cond.notify();
 }
 
 struct ThreadStartArgs {
@@ -264,6 +258,8 @@ static void* _thread_start(void* _arg) {
         current_threads[tid] = new ThreadStateInternal(stack_bottom, current_thread);
 
         num_starting_threads--;
+        if (num_starting_threads == 0)
+            starting_threads_cond.notifyAll();
 
         if (VERBOSITY() >= 2)
             printf("child initialized; tid=%lu\n", gettid());

@@ -61,7 +61,11 @@ public:
     NopLock* asWrite() { return this; }
 };
 
+class PthreadCond;
+
 class PthreadMutexBase : public LockBase {
+    friend class PthreadCond;
+
 protected:
     pthread_mutex_t mutex;
 
@@ -81,6 +85,16 @@ public:
 class PthreadMutex : public PthreadMutexBase {
 public:
     PthreadMutex() { mutex = PTHREAD_MUTEX_INITIALIZER; }
+};
+
+class PthreadCond {
+private:
+    pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+
+public:
+    int wait(PthreadMutexBase* m) { return pthread_cond_wait(&cond, &m->mutex); }
+    int notify() { return pthread_cond_signal(&cond); }
+    int notifyAll() { return pthread_cond_broadcast(&cond); }
 };
 
 class PthreadRWLock {
