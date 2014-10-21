@@ -24,24 +24,35 @@
 namespace pyston {
 namespace threading {
 
-template <typename T> class _LockedRegion {
+
+class LockBase {
+public:
+    virtual void lock() = 0;
+    virtual void unlock() = 0;
+
+    virtual ~LockBase() {}
+};
+
+class _LockedRegion {
 private:
-    T* const mutex;
+    LockBase* const mutex;
 
 public:
-    _LockedRegion(T* mutex) : mutex(mutex) { mutex->lock(); }
+    _LockedRegion(LockBase* m) : mutex(m) { mutex->lock(); }
+    _LockedRegion(LockBase& m) : mutex(&m) { mutex->lock(); }
     ~_LockedRegion() { mutex->unlock(); }
 };
 
-template <typename T> _LockedRegion<T> _makeLockedRegion(T* mutex) {
-    return _LockedRegion<T>(mutex);
-}
-template <typename T> _LockedRegion<T> _makeLockedRegion(T& mutex) {
-    return _LockedRegion<T>(&mutex);
-}
-#define LOCK_REGION(lock) auto CAT(_lock_, __LINE__) = pyston::threading::_makeLockedRegion(lock)
+//_LockedRegion _makeLockedRegion(LockBase* mutex) {
+//    return _LockedRegion(mutex);
+//}
+//_LockedRegion _makeLockedRegion(LockBase& mutex) {
+//    return _LockedRegion(&mutex);
+//}
+//
+#define LOCK_REGION(lock) auto CAT(_lock_, __LINE__) = pyston::threading::_LockedRegion(lock)
 
-class NopLock {
+class NopLock : public LockBase {
 public:
     void lock() {}
     void unlock() {}
@@ -50,28 +61,26 @@ public:
     NopLock* asWrite() { return this; }
 };
 
-class PthreadFastMutex {
-private:
-    pthread_mutex_t mutex = PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP;
+class PthreadMutexBase : public LockBase {
+protected:
+    pthread_mutex_t mutex;
 
 public:
     void lock() { pthread_mutex_lock(&mutex); }
     void unlock() { pthread_mutex_unlock(&mutex); }
 
-    PthreadFastMutex* asRead() { return this; }
-    PthreadFastMutex* asWrite() { return this; }
+    PthreadMutexBase* asRead() { return this; }
+    PthreadMutexBase* asWrite() { return this; }
 };
 
-class PthreadMutex {
-private:
-    pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
+class PthreadFastMutex : public PthreadMutexBase {
 public:
-    void lock() { pthread_mutex_lock(&mutex); }
-    void unlock() { pthread_mutex_unlock(&mutex); }
+    PthreadFastMutex() { mutex = PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP; }
+};
 
-    PthreadMutex* asRead() { return this; }
-    PthreadMutex* asWrite() { return this; }
+class PthreadMutex : public PthreadMutexBase {
+public:
+    PthreadMutex() { mutex = PTHREAD_MUTEX_INITIALIZER; }
 };
 
 class PthreadRWLock {
