@@ -14,7 +14,7 @@
 
 #ifndef PYSTON_ASMWRITING_ASSEMBLER_H
 #define PYSTON_ASMWRITING_ASSEMBLER_H
-
+#include <string>
 #include <unordered_set>
 
 #include "asm_writing/types.h"

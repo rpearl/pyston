@@ -210,7 +210,7 @@ extern "C" Box* listSetitemSlice(BoxedList* self, BoxedSlice* slice, Box* v) {
     RELEASE_ASSERT(step == 1, "step sizes must be 1 for now");
 
     assert(0 <= start && start < self->size);
-    ASSERT(0 <= stop && stop <= self->size, "%ld %ld", self->size, stop);
+    ASSERT(0 <= stop && stop <= self->size, "%lld %lld", self->size, stop);
     assert(start <= stop);
 
     ASSERT(v->cls == list_cls, "unsupported %s", getTypeName(v)->c_str());
@@ -265,7 +265,7 @@ extern "C" Box* listDelitemSlice(BoxedList* self, BoxedSlice* slice) {
     RELEASE_ASSERT(step == 1, "step sizes must be 1 for now");
 
     assert(0 <= start && start < self->size);
-    ASSERT(0 <= stop && stop <= self->size, "%ld %ld", self->size, stop);
+    ASSERT(0 <= stop && stop <= self->size, "%lld %lld", self->size, stop);
     assert(start <= stop);
 
     int remaining_elts = self->size - stop;

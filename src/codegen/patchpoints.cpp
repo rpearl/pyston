@@ -153,7 +153,7 @@ void processStackmap(CompiledFunction* cf, StackMap* stackmap) {
         assert(pp);
 
         if (VERBOSITY())
-            printf("Processing pp %ld\n", reinterpret_cast<int64_t>(pp));
+            printf("Processing pp %lld\n", reinterpret_cast<int64_t>(pp));
 
         assert(r->locations.size() == pp->totalStackmapArgs());
 

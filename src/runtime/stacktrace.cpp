@@ -80,7 +80,7 @@ void unwindExc(Box* exc_obj) {
             continue;
         }
 
-        printf("%lx %lx %lx\n", pip.lsda, pip.handler, pip.flags);
+        printf("%llx %llx %llx\n", pip.lsda, pip.handler, pip.flags);
         // assert(pip.handler == (uintptr_t)__gxx_personality_v0 || pip.handler == (uintptr_t)__py_personality_v0);
 
         // auto handler_fn = (int (*)(int, int, uint64_t, void*, void*))pip.handler;

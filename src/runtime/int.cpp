@@ -97,14 +97,14 @@ bool __builtin_smull_overflow(i64 lhs, i64 rhs, i64* result) {
 // that this isn't needed:
 extern "C" Box* add_i64_i64(i64 lhs, i64 rhs) {
     i64 result;
-    if (!__builtin_saddl_overflow(lhs, rhs, &result))
+    if (!__builtin_saddll_overflow(lhs, rhs, &result))
         return boxInt(result);
     return longAdd(boxLong(lhs), boxLong(rhs));
 }
 
 extern "C" Box* sub_i64_i64(i64 lhs, i64 rhs) {
     i64 result;
-    if (!__builtin_ssubl_overflow(lhs, rhs, &result))
+    if (!__builtin_ssubll_overflow(lhs, rhs, &result))
         return boxInt(result);
     return longSub(boxLong(lhs), boxLong(rhs));
 }
@@ -159,10 +159,10 @@ extern "C" Box* pow_i64_i64(i64 lhs, i64 rhs) {
     while (rhs) {
         if (rhs & 1) {
             // TODO: could potentially avoid restarting the entire computation on overflow?
-            if (__builtin_smull_overflow(rtn, curpow, &rtn))
+            if (__builtin_smulll_overflow(rtn, curpow, &rtn))
                 return longPow(boxLong(lhs), boxLong(orig_rhs));
         }
-        if (__builtin_smull_overflow(curpow, curpow, &curpow))
+        if (__builtin_smulll_overflow(curpow, curpow, &curpow))
             return longPow(boxLong(lhs), boxLong(orig_rhs));
 
         rhs >>= 1;
@@ -172,7 +172,7 @@ extern "C" Box* pow_i64_i64(i64 lhs, i64 rhs) {
 
 extern "C" Box* mul_i64_i64(i64 lhs, i64 rhs) {
     i64 result;
-    if (!__builtin_smull_overflow(lhs, rhs, &result))
+    if (!__builtin_smulll_overflow(lhs, rhs, &result))
         return boxInt(result);
     return longMul(boxLong(lhs), boxLong(rhs));
 }
@@ -640,7 +640,7 @@ extern "C" BoxedString* intRepr(BoxedInt* v) {
                        getTypeName(v)->c_str());
 
     char buf[80];
-    int len = snprintf(buf, 80, "%ld", v->n);
+    int len = snprintf(buf, 80, "%lld", v->n);
     return new BoxedString(std::string(buf, len));
 }
 

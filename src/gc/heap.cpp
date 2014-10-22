@@ -73,7 +73,7 @@ public:
         assert(size % PAGE_SIZE == 0);
         // printf("mmap %ld\n", size);
 
-        void* mrtn = mmap(cur, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        void* mrtn = mmap(cur, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
         assert((uintptr_t)mrtn != -1 && "failed to allocate memory from OS");
         ASSERT(mrtn == cur, "%p %p\n", mrtn, cur);
         cur = (uint8_t*)cur + size;
@@ -508,11 +508,11 @@ struct HeapStatistics {
 
         void print(const char* name) const {
             if (nbytes > (1 << 20))
-                printf("%s: %ld allocations for %.1f MB\n", name, nallocs, nbytes * 1.0 / (1 << 20));
+                printf("%s: %lld allocations for %.1f MB\n", name, nallocs, nbytes * 1.0 / (1 << 20));
             else if (nbytes > (1 << 10))
-                printf("%s: %ld allocations for %.1f KB\n", name, nallocs, nbytes * 1.0 / (1 << 10));
+                printf("%s: %lld allocations for %.1f KB\n", name, nallocs, nbytes * 1.0 / (1 << 10));
             else
-                printf("%s: %ld allocations for %ld bytes\n", name, nallocs, nbytes);
+                printf("%s: %lld allocations for %lld bytes\n", name, nallocs, nbytes);
         }
     };
     std::unordered_map<BoxedClass*, TypeStats> by_cls;

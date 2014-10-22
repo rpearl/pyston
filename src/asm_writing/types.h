@@ -15,6 +15,8 @@
 #ifndef PYSTON_ASMWRITING_TYPES_H
 #define PYSTON_ASMWRITING_TYPES_H
 
+#include <cstdlib>
+
 namespace pyston {
 
 struct StackInfo {

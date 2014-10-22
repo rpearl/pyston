@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <pthread.h>
 
 #include "core/threading.h"
 
@@ -26,6 +27,8 @@
 #include "core/stats.h"
 #include "core/thread_utils.h"
 #include "core/util.h"
+
+#define CTX_RSP(ctx) ((ctx)->__ss.__rsp)
 
 namespace pyston {
 namespace threading {
@@ -122,7 +125,7 @@ void* getStackTop() {
     if (depth == 0) {
         return __builtin_frame_address(0);
     }
-    return (void*)state->context_from_generator->uc_mcontext.gregs[REG_RSP];
+    return (void*)CTX_RSP(state->context_from_generator->uc_mcontext);
 }
 
 void pushGenerator(ucontext_t* prev_context) {
@@ -135,13 +138,14 @@ void popGenerator() {
 static int signals_waiting(0);
 static std::vector<ThreadState> thread_states;
 
-static void pushThreadState(pthread_t tid, ucontext_t* context) {
+static void pushThreadState(pyston_tid_t tid, ucontext_t* context) {
+	void *rsp = (void *)CTX_RSP(context->uc_mcontext);
 #if STACK_GROWS_DOWN
-    void* stack_start = (void*)context->uc_mcontext.gregs[REG_RSP];
+    void* stack_start = rsp;
     void* stack_end = current_threads[tid]->stack_bottom;
 #else
     void* stack_start = current_threads[tid]->stack_bottom;
-    void* stack_end = (void*)(context->uc_mcontext.gregs[REG_RSP] + sizeof(void*));
+    void* stack_end = (void*)(rsp + sizeof(void*));
 #endif
     assert(stack_start < stack_end);
     thread_states.push_back(ThreadState(tid, context, stack_start, stack_end));
@@ -216,8 +220,6 @@ static void _thread_context_dump(int signum, siginfo_t* info, void* _context) {
     pyston_tid_t tid = gettid();
     if (VERBOSITY() >= 2) {
         printf("in thread_context_dump, tid=%lu\n", tid);
-        printf("%p %p %p\n", context, &context, context->uc_mcontext.fpregs);
-        printf("old rip: 0x%lx\n", (intptr_t)context->uc_mcontext.gregs[REG_RIP]);
     }
 
     pushThreadState(tid, context);
@@ -244,17 +246,17 @@ static void* _thread_start(void* _arg) {
 
         pthread_t current_thread = pthread_self();
 
-        pthread_attr_t thread_attrs;
-        int code = pthread_getattr_np(current_thread, &thread_attrs);
-        if (code)
-            err(1, NULL);
+       // pthread_attr_t thread_attrs;
+       // int code = pthread_getattr_np(current_thread, &thread_attrs);
+       // if (code)
+       //     err(1, NULL);
 
-        void* stack_start;
-        size_t stack_size;
-        code = pthread_attr_getstack(&thread_attrs, &stack_start, &stack_size);
-        RELEASE_ASSERT(code == 0, "");
+        void* stack_start = pthread_get_stackaddr_np(current_thread);
+        size_t stack_size = pthread_get_stacksize_np(current_thread);
+        //code = pthread_attr_getstack(&thread_attrs, &stack_start, &stack_size);
+        //RELEASE_ASSERT(code == 0, "");
 
-        pthread_attr_destroy(&thread_attrs);
+        //pthread_attr_destroy(&thread_attrs);
 
 #if STACK_GROWS_DOWN
         void* stack_bottom = static_cast<char*>(stack_start) + stack_size;
@@ -297,10 +299,10 @@ intptr_t start_thread(void* (*start_func)(Box*, Box*, Box*), Box* arg1, Box* arg
     int code = pthread_create(&thread_id, NULL, &_thread_start, args);
     RELEASE_ASSERT(code == 0, "");
     if (VERBOSITY() >= 2)
-        printf("pthread thread_id: 0x%lx\n", thread_id);
+        printf("pthread thread_id: 0x%lx\n", (intptr_t)thread_id);
 
     static_assert(sizeof(pthread_t) <= sizeof(intptr_t), "");
-    return thread_id;
+    return (intptr_t)thread_id;
 }
 
 // from https://www.sourceware.org/ml/guile/2000-07/msg00214.html
