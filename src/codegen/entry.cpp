@@ -61,13 +61,13 @@ extern "C" {
 #define _CONCAT4(a, b, c, d) a##b##c##d
 #define CONCAT4(a, b, c, d) _CONCAT4(a, b, c, d)
 
-#define STDLIB_BC_START CONCAT3(_binary_stdlib, BINARY_SUFFIX, _bc_start)
-#define STDLIB_BC_SIZE CONCAT3(_binary_stdlib, BINARY_SUFFIX, _bc_size)
+#define STDLIB_BC_START CONCAT3(stdlib, BINARY_SUFFIX, _bc)
+#define STDLIB_BC_SIZE CONCAT3(stdlib, BINARY_SUFFIX, _bc_len)
 extern char STDLIB_BC_START[];
 extern int STDLIB_BC_SIZE;
 
-#define STRIPPED_STDLIB_BC_START CONCAT4(_binary_stdlib, BINARY_SUFFIX, BINARY_STRIPPED_SUFFIX, _bc_start)
-#define STRIPPED_STDLIB_BC_SIZE CONCAT4(_binary_stdlib, BINARY_SUFFIX, BINARY_STRIPPED_SUFFIX, _bc_size)
+#define STRIPPED_STDLIB_BC_START CONCAT4(stdlib, BINARY_SUFFIX, BINARY_STRIPPED_SUFFIX, _bc)
+#define STRIPPED_STDLIB_BC_SIZE CONCAT4(stdlib, BINARY_SUFFIX, BINARY_STRIPPED_SUFFIX, _bc_len)
 extern char STRIPPED_STDLIB_BC_START[];
 extern int STRIPPED_STDLIB_BC_SIZE;
 }

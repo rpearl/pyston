@@ -172,22 +172,22 @@ void _printStacktrace() {
 }
 
 // where should this go...
-extern "C" void abort() {
-    static void (*libc_abort)() = (void (*)())dlsym(RTLD_NEXT, "abort");
-
-    // In case something calls abort down the line:
-    static bool recursive = false;
-    if (!recursive) {
-        recursive = true;
-
-        fprintf(stderr, "Someone called abort!\n");
-
-        _printStacktrace();
-    }
-
-    libc_abort();
-    __builtin_unreachable();
-}
+//extern "C" void abort() {
+//    static void (*libc_abort)() = (void (*)())dlsym(RTLD_NEXT, "abort");
+//
+//    // In case something calls abort down the line:
+//    static bool recursive = false;
+//    if (!recursive) {
+//        recursive = true;
+//
+//        fprintf(stderr, "Someone called abort!\n");
+//
+//        _printStacktrace();
+//    }
+//
+//    libc_abort();
+//    __builtin_unreachable();
+//}
 
 extern "C" void exit(int code) {
     static void (*libc_exit)(int) = (void (*)(int))dlsym(RTLD_NEXT, "exit");

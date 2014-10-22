@@ -128,7 +128,7 @@ LLVM_PROFILE_LIB_DEPS := $(wildcard $(LLVM_BUILD)/Release+Profile/lib/*)
 CLANG_EXE := $(LLVM_BIN)/clang
 CLANGPP_EXE := $(LLVM_BIN)/clang++
 
-COMMON_CFLAGS := -g -Werror -Wno-deprecated-declarations -Wreturn-type -Wall -Wno-sign-compare -Wno-unused -I. -I../include -I/usr/local/Cellar/gmp/5.1.3/include -I$(LLVM_TRUNK_SRC)/projects/libcxx/include -fno-omit-frame-pointer
+COMMON_CFLAGS := -g -Werror -Wno-deprecated-declarations -Wreturn-type -Wall -Wno-sign-compare -Wno-unused -I. -I../include -I/usr/local/Cellar/gmp/5.1.3/include -I$(LLVM_TRUNK_SRC)/projects/libcxx/include -fvisibility=default -fno-omit-frame-pointer
 COMMON_CFLAGS += -Wextra -Wno-sign-compare
 COMMON_CFLAGS += -Wno-unused-parameter # should use the "unused" attribute
 COMMON_CXXFLAGS := $(COMMON_CFLAGS)
